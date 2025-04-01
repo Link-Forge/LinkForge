@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  username      String    @unique
+  password      String
+  role          Role      @default(USER)
+  status        Status    @default(ACTIVE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  linkPage      LinkPage?
+}
+
+model LinkPage {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id])
+  title         String?
+  description   String?
+  theme         String    @default("default")
+  backgroundColor String  @default("#050505")
+  textColor     String   @default("#ffffff")
+  font          String   @default("Inter, sans-serif")
+  buttonStyle   String   @default("solid")
+  buttonColor   String   @default("#865DFF")
+  buttonTextColor String @default("#ffffff")
+  animation     String   @default("none")
+  backgroundPattern String @default("none")
+  customCss     String?
+  avatar        String?
+  socialLinks   Json?
+  isPublic      Boolean  @default(true)
+  viewCount     Int      @default(0)
+  links         Link[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Link {
+  id            String    @id @default(cuid())
+  linkPageId    String
+  linkPage      LinkPage  @relation(fields: [linkPageId], references: [id])
+  title         String
+  url           String
+  description   String?
+  icon          String?
+  order         Int       @default(0)
+  isActive      Boolean   @default(true)
+  clickCount    Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+  FOUNDER
+}
+
+enum Status {
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+} 
